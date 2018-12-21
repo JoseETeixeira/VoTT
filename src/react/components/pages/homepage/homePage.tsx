@@ -8,6 +8,7 @@ import CondensedList from "../../common/condensedList";
 import RecentProjectItem from "./recentProjectItem";
 import FilePicker from "../../common/filePicker";
 import { Link, RouteComponentProps } from "react-router-dom";
+import Confirm from "../../common/confirm";
 
 interface IHomepageProps extends RouteComponentProps, React.Props<HomePage> {
     recentProjects: IProject[];
@@ -29,11 +30,13 @@ function mapDispatchToProps(dispatch) {
 @connect(mapStateToProps, mapDispatchToProps)
 export default class HomePage extends React.Component<IHomepageProps> {
     private filePicker: React.RefObject<FilePicker>;
+    private deleteConfirm: React.RefObject<Confirm>;
 
     constructor(props: IHomepageProps, context) {
         super(props, context);
 
         this.filePicker = React.createRef<FilePicker>();
+        this.deleteConfirm = React.createRef<Confirm>();
         this.loadSelectedProject = this.loadSelectedProject.bind(this);
         this.onProjectFileUpload = this.onProjectFileUpload.bind(this);
         this.deleteProject = this.deleteProject.bind(this);
@@ -70,9 +73,14 @@ export default class HomePage extends React.Component<IHomepageProps> {
                             Component={RecentProjectItem}
                             items={this.props.recentProjects}
                             onClick={this.loadSelectedProject}
-                            onDelete={this.deleteProject} />
+                            onDelete={(project) => this.deleteConfirm.current.open(project)} />
                     </div>
                 }
+                <Confirm title="Delete Project"
+                    ref={this.deleteConfirm}
+                    message={(project: IProject) => `Are you sure you want to delete project '${project.name}'?`}
+                    confirmButtonColor="danger"
+                    onConfirm={this.deleteProject} />
             </div>
         );
     }
